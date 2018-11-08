@@ -1,0 +1,89 @@
+系统：ubuntu16.04
+libpcap：
+	下载libpcap,解压
+	进入libpcap文件夹下
+	sudo apt-get install flex bison
+	./configure
+	make
+	sudo make install
+
+	使用文档：https://blog.csdn.net/htttw/article/details/7521053
+	编译.c文件：gcc -o test test.c -lpcap
+	如果执行生成的test文件，提示libpcap.so.1: cannot open shared object file: No such file or directory。这是因为libpcap.so.1默认安装到了/usr/local/lib下，我们做一个符号链接到/usr/lib/下即可
+		sudo ln -s /usr/local/lib/libpcap.so.1 /usr/lib/libpcap.so.1
+
+	centos：yxy is not in the sudoers file.
+		切换到root用户下：su
+		修改/etc/sudoers，加入一行： 用户名   ALL = （ALL）  ALL
+
+
+listen函数默认输出位置为 /home/yxy/Desktop/s.txt，注意修改
+	注：如果机器有多个端口，可能需要手动修改监听的端口名
+server.c函数为收包函数，执行时需要权限。执行方式为 ./server.c IP地址(本机IP) 端口号
+client.c函数为发包函数。执行方式为./client.c IP地址(目标IP) 目标端口号
+	注：client.c函数所发包为TCP包，所发包的末尾字段data用于标记此包。发包数量由循环次数决定
+	注：如果发包给CentOS系统，出现connect: No route to host的错误，是由于系统的防火墙没有关掉， 可以使用systemctl stop firewalld.service 命令关闭防火墙
+get_packet.py函数根据src_mac和dst_mac筛选包，从而过滤出发包函数所发的包：
+	src_txt='/home/yxy/Desktop/s.txt'
+	des_txt='/home/yxy/Desktop/data/s/s.txt'
+hex2pcap.py函数将16进制txt文件内容，转化为.pcap文件
+end.py函数判断发包函数所发包是否存在丢失（根据TCP包的data字段判断，连续发送的data字段可能被重合到一个TCP包中发出）
+
+
+tcpdump:
+	安装libpcap后可以执行tcpdump命令
+	使用文档：http://www.cnblogs.com/f-ck-need-u/p/7064286.html
+
+
+安装wireshark：
+	如果是Ubuntu16.04，要首先开启universe仓库
+	如果要使用命令而不是Software开启的话，在终端输入
+		sudo add-apt-repository universe
+	在旧版本的Ubuntu上，您可能需要使用完整的源代码行
+		sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) universe"
+	使所有的Ubuntu软件（main universe restricted multiverse）存储库都能使用
+		sudo add-apt-repository "deb http://archive.ubuntu.com/ubuntu $(lsb_release -sc) main universe restricted multiverse"
+	还可以添加不同链接的partner存储库
+		sudo add-apt-repository "deb http://archive.canonical.com/ubuntu $(lsb_release -sc) partner"
+	后添加PPA
+		sudo add-apt-repository ppa:wireshark-dev/stable
+	更新包列表
+		sudo apt update
+	安装wireshark：
+		sudo apt install wireshark
+	注意：安装时在设定wireshark-common的时候要选择 “YES”
+	查看wireshark所在组
+		cat /etc/group | grep wireshark
+	把当前登录用户加入到wireshark组中
+		sudo usermod -a -G wireshark username
+	启动wireshark：
+		sudo wireshark
+
+	如果是CentOS7：
+	yum install wireshark
+	yum install wireshark-gnome
+
+
+安装java jdk：
+	下载jdk包，以jdk-8u191-linux-x64.tar.gz文件为例
+	把tar.gz文件解压到Linux目录下，以/usr/local/java/目录下为例(执行 tar -zxvf jdk-8u191-linux-x64.tar.gz /usr/local/java/ 即可)
+	配置环境变量：运行$ sudo vi /etc/profile，在文件末尾插入：
+		JAVA_HOME=/usr/local/java/jdk1.8.0_191
+		PATH=$JAVA_HOME/bin:$PATH
+		CLASSPATH=.:$JAVA_HOME/lib/dt.jar:$JAVA_HOME/lib/tools.jar
+		export JAVA_HOME PATH CLASSPATH
+	jdk不同，存放位置不同，环境变量需要进行相应修改
+	运行$ source /etc/profile，使配置环境生效
+	运行$ java -version 看是否生效。若出现jdk版本号，则安装并配置环境变量成功
+	重启系统，即完成java jdk的配置
+
+	（如果是RPM安装包执行如下安装代码：rpm -i jdk-8u151-linux-x64.rpm）但未进行尝试
+
+
+Tcpreplay:
+	下载Tcpreplay,解压
+	进入Tcpreplay文件夹下
+	./configure
+	make
+	sudo make install
+
